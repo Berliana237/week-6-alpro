@@ -1,0 +1,70 @@
+import time
+import tracemalloc
+
+# Daftar barang dan harga
+daftar_barang = {
+    "Tepung Segitiga 1 kg": 10000,
+    "Coklat Bubuk 250 gr": 15000,
+    "Tepung Maizena 1 kg": 12000,
+    "Bubuk Minuman": 8000,
+    "Gula Pasir 1 kg": 12000,
+    "Susu Bubuk 400 gr": 25000,
+    "Beras 5 kg": 50000,
+}
+
+def tampilkan_menu():
+    print("Daftar Barang:")
+    for index, (barang, harga) in enumerate(daftar_barang.items(), start=1):
+        print(f"{index}. {barang}: Rp {harga}")
+
+def hitung_total_belanja(harga_barang):
+    return sum(harga_barang)
+
+def main():
+    harga_barang = []
+    
+    # Tampilkan menu barang
+    tampilkan_menu()
+    
+    # Mengambil input dari pengguna
+    while True:
+        pilihan = input("Pilih nomor barang (atau ketik 'n' untuk menghitung total): ")
+        if pilihan.lower() == 'n':
+            break
+        try:
+            pilihan_index = int(pilihan) - 1
+            # Validasi barang dengan O(n²) menggunakan nested loop
+            valid = False
+            for index, barang in enumerate(daftar_barang.keys()):
+                if index == pilihan_index:
+                    valid = True
+                    break
+            
+            if valid:
+                barang = list(daftar_barang.keys())[pilihan_index]
+                harga_barang.append(daftar_barang[barang])
+                print(f"{barang} ditambahkan ke total belanja.")
+            else:
+                print("Pilihan tidak valid. Silakan pilih nomor yang ada di daftar.")
+        except ValueError:
+            print("Input tidak valid. Silakan masukkan nomor yang benar atau 'n'.")
+
+    # Mengukur waktu eksekusi
+    start_time = time.time()
+    
+    # Mengukur penggunaan memori
+    tracemalloc.start()
+    
+    total = hitung_total_belanja(harga_barang)
+    
+    # Menghentikan pengukuran memori
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    
+    end_time = time.time()
+    
+    # Menampilkan hasil
+    print(f"Total belanja: Rp {total}")
+
+if _name_ == "_main_":
+    main()

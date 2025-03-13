@@ -1,0 +1,107 @@
+class Kurir:
+    def __init__(self, nama, kecepatan):
+        self.nama = nama
+        self.kecepatan = kecepatan  # Kecepatan kurir (km per menit)
+
+class Pesanan:
+    def __init__(self, nama, jarak, waktu_masak):
+        self.nama = nama
+        self.jarak = jarak  # Jarak ke pelanggan (km)
+        self.waktu_masak = waktu_masak  # Waktu memasak (menit)
+
+def hitung_estimasi(pesanan, kurir):
+    return (pesanan.jarak / kurir.kecepatan) + pesanan.waktu_masak
+
+# ==========================
+# Solusi Buruk: Brute Force (O(n²))
+# ==========================
+def brute_force(pesanan_list, kurir_list):
+    print("\n=== Solusi Buruk (Brute Force, O(n²)) ===")
+    estimasi_terbaik = float('inf')
+    hasil_pesanan, hasil_kurir = None, None
+
+    for pesanan in pesanan_list:
+        for kurir in kurir_list:
+            estimasi = hitung_estimasi(pesanan, kurir)
+            if estimasi < estimasi_terbaik:
+                estimasi_terbaik = estimasi
+                hasil_pesanan, hasil_kurir = pesanan, kurir
+
+    print(f"Pesanan: {hasil_pesanan.nama} (Jarak: {hasil_pesanan.jarak} km, Waktu Masak: {hasil_pesanan.waktu_masak} menit)")
+    print(f"Kurir: {hasil_kurir.nama} (Kecepatan: {hasil_kurir.kecepatan} km/menit)")
+    print(f"Estimasi Waktu Tiba: {estimasi_terbaik:.2f} menit\n")
+
+# ==========================
+# Solusi Baik: Binary Search Tree (O(n log n))
+# ==========================
+class Node:
+    def __init__(self, pesanan, kurir, estimasi):
+        self.pesanan = pesanan
+        self.kurir = kurir
+        self.estimasi = estimasi
+        self.left = None
+        self.right = None
+
+def masukkan_bst(root, pesanan, kurir, estimasi):
+    if root is None:
+        return Node(pesanan, kurir, estimasi)
+
+    if estimasi < root.estimasi:
+        root.left = masukkan_bst(root.left, pesanan, kurir, estimasi)
+    else:
+        root.right = masukkan_bst(root.right, pesanan, kurir, estimasi)
+
+    return root
+
+def cari_terbaik_bst(root):
+    if root is None or root.left is None:
+        return root.pesanan, root.kurir, root.estimasi
+    return cari_terbaik_bst(root.left)
+
+def bst_solution(pesanan_list, kurir_list):
+    print("\n=== Solusi Baik (BST, O(n log n)) ===")
+    root = None
+    for pesanan in pesanan_list:
+        for kurir in kurir_list:
+            estimasi = hitung_estimasi(pesanan, kurir)
+            root = masukkan_bst(root, pesanan, kurir, estimasi)
+
+    hasil_pesanan, hasil_kurir, estimasi_terbaik = cari_terbaik_bst(root)
+    
+    print(f"Pesanan: {hasil_pesanan.nama} (Jarak: {hasil_pesanan.jarak} km, Waktu Masak: {hasil_pesanan.waktu_masak} menit)")
+    print(f"Kurir: {hasil_kurir.nama} (Kecepatan: {hasil_kurir.kecepatan} km/menit)")
+    print(f"Estimasi Waktu Tiba: {estimasi_terbaik:.2f} menit\n")
+
+# ==========================
+# Fungsi Input Data
+# ==========================
+def input_pesanan():
+    pesanan_list = []
+    jumlah_pesanan = int(input("Masukkan jumlah pesanan: "))
+    for i in range(jumlah_pesanan):
+        nama = input(f"Nama pesanan {i+1}: ")
+        jarak = float(input(f"  Jarak (km): "))
+        waktu_masak = float(input(f"  Waktu memasak (menit): "))
+        pesanan_list.append(Pesanan(nama, jarak, waktu_masak))
+    return pesanan_list
+
+def input_kurir():
+    kurir_list = []
+    jumlah_kurir = int(input("Masukkan jumlah kurir: "))
+    for i in range(jumlah_kurir):
+        nama = input(f"Nama kurir {i+1}: ")
+        kecepatan = float(input(f"  Kecepatan (km/menit): "))
+        kurir_list.append(Kurir(nama, kecepatan))
+    return kurir_list
+
+# ==========================
+# Menjalankan Program
+# ==========================
+pesanan_list = input_pesanan()
+kurir_list = input_kurir()
+
+# Solusi Buruk
+brute_force(pesanan_list, kurir_list)
+
+# Solusi Baik
+bst_solution(pesanan_list, kurir_list)
